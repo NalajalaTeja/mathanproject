@@ -1,9 +1,12 @@
-#suspect detecting
-import os  
-import cv2   #import modules
+# suspect recognizing
+# install necessary Modules
+import os
+import cv2
 import face_recognition
 import datetime
 import winsound
+
+# Suspect images should be in a folder named "Known"
 
 TOLERANCE = 0.5
 FRAME_THICKNESS = 3
@@ -11,9 +14,11 @@ FONT_THICKNESS = 2
 MODEL = "cnn"
 video = cv2.VideoCapture(0)
 
+# Initializing lists for known face encodings and names
+
 known_faces = []
 known_names = []
-for file in os.listdir("known"):  #known folder
+for file in os.listdir("known"):
     # image = read_img("known/" + file)
     image = face_recognition.load_image_file("known/" + file)
     encoding = face_recognition.face_encodings(image)[0]
@@ -27,10 +32,10 @@ while True:
     encoding = face_recognition.face_encodings(image, locations)
 
     for face_encoding, (top,right,bottom,left) in zip(encoding, locations):
-        results = face_recognition.compare_faces(known_faces, face_encoding, TOLERANCE)
+        matches = face_recognition.compare_faces(known_faces, face_encoding, TOLERANCE)
         match = "Unknown"
-        if True in results:
-            match = known_names[results.index(True)]
+        if True in matches:
+            match = known_names[matches.index(True)]
             print(f"Match found:  {match}")
             winsound.Beep(500,500)
             print(datetime.datetime.now())
@@ -43,8 +48,12 @@ while True:
         cv2.putText(image, match, (left + 6, bottom - 6), font, 1.0, (50, 100, 200), 1)
 
     cv2.imshow(file, image)
+    
+    # press q to quit
+    
     key = cv2.waitKey(1)
     if key == ord("q"):
         break
+        
 cv2.destroyAllWindows()
 video.release()
